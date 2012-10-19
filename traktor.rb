@@ -1,37 +1,20 @@
 require "nokogiri"
 
 collection = Nokogiri::XML(File.open("./COLLECTION.nml"))
-
-x = collection.xpath("//COLLECTION//ENTRY")
-
-puts x.size
+collection = collection.xpath("//COLLECTION//ENTRY")
 
 artists = []
 
-x.each do |y|
-	artist = y['ARTIST']
+collection.each do |row|
+	artist = row['ARTIST']
 	artists << artist
 end
 
+#attempt to remove duplicates and put in some logical order
 artists = artists.compact
-
-artists = artists.map { |x| x.downcase }
-
+artists = artists.map { |artist| artist.downcase } 
+artists = artists.sort.uniq
+artists = artists.map { |artist| artist.gsub("*bonus*","").strip.gsub(/\b('?[a-z])/) { $1.capitalize }.gsub("Dj ","DJ ").gsub("And ", "& ").gsub("Featuring", "Feat").gsub("Ft.","Feat.").gsub("Feat ","Feat.") }
 artists = artists.sort.uniq
 
-artists = artists.map { |x| x.gsub("*bonus*","").strip.gsub(/\b('?[a-z])/) { $1.capitalize }.gsub("Dj ","DJ ").gsub("And ", "& ").gsub("Featuring", "Feat").gsub("Ft.","Feat.").gsub("Feat ","Feat.") }
-
-artists = artists.sort.uniq
-
-
-puts artists.size
-
-artists.each do |a|
-	puts a
-end
-
-#puts x.first['AUDIO_ID']
-
-#entry = Nokogiri::Slop(x.first)
-
-#puts entry.AUDIO_ID
+artists.map {|artist| puts artist}
